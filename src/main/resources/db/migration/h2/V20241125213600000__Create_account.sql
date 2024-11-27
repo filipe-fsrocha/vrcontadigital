@@ -34,9 +34,14 @@ create table key_pix (
 );
 
 -- Init account number
-insert into next_account (id, next_account_number, last_updated) values ('0edf91b8-d7c1-4e0f-8053-83fdd8947bd9', '00001', now());
+insert into next_account (id, next_account_number, last_updated) values ('0edf91b8-d7c1-4e0f-8053-83fdd8947bd9', '00002', now());
 
 -- Configure FK's
 alter table person add foreign key (account_id) references account(id);
 alter table balance add foreign key (account_id) references account(id);
 alter table key_pix add foreign key (account_id) references account(id);
+
+-- LOAD DATA FOR TESTS
+INSERT INTO account (id, bank, account, card_number, password) VALUES ('46f8acb7-f100-4749-9815-9afdd9c2afcd', '610', '00001', '1203194759478203', '7204');
+INSERT INTO person (id, cpf, name, account_id) VALUES ('7464375d-ca23-4fc5-87a9-49da7467c184', '11111111111', 'Filipe', '46f8acb7-f100-4749-9815-9afdd9c2afcd');
+INSERT INTO balance(id, account_id, balance, last_updated) VALUES ('46f8acb7-f100-4749-9815-9afdd9c2afcd', '46f8acb7-f100-4749-9815-9afdd9c2afcd', 495.15, now());

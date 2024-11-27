@@ -22,6 +22,11 @@ public class ExceptionErrorHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
     }
 
+    @ExceptionHandler(value = {NotFoundException.class})
+    public ResponseEntity<Object> notFoundException() {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(@NonNull MethodArgumentNotValidException ex,
                                                                   @NonNull HttpHeaders headers,

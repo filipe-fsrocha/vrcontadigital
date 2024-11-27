@@ -1,7 +1,9 @@
 package br.com.fsrocha.vrcontadigital.domain.service.impl;
 
 import br.com.fsrocha.vrcontadigital.application.exception.AccountExistsException;
+import br.com.fsrocha.vrcontadigital.application.exception.NotFoundException;
 import br.com.fsrocha.vrcontadigital.domain.model.AccountEntity;
+import br.com.fsrocha.vrcontadigital.domain.model.BalanceEntity;
 import br.com.fsrocha.vrcontadigital.domain.repository.AccountRepository;
 import br.com.fsrocha.vrcontadigital.domain.service.AccountService;
 import br.com.fsrocha.vrcontadigital.domain.service.PersonService;
@@ -12,6 +14,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -30,6 +35,15 @@ public class AccountServiceImpl implements AccountService {
         checkExistsAccount(entity.getPerson().getCpf());
         entity.setAccount(nextAccountNumber.get());
         return accountRepository.save(entity);
+    }
+
+    @Override
+    public BigDecimal checkBalance(String accountNumber) {
+        var account = accountRepository.findByAccount(accountNumber)
+                .orElseThrow(NotFoundException::new);
+        return Optional.ofNullable(account.getBalance())
+                .map(BalanceEntity::getBalance)
+                .orElse(BigDecimal.ZERO);
     }
 
     private void checkExistsAccount(String cpf) {
