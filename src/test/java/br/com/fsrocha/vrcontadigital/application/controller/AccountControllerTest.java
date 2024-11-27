@@ -26,7 +26,7 @@ class AccountControllerTest extends UnitTest {
     AccountController accountController;
 
     @Test
-    @DisplayName("[401] - Authentication error")
+    @DisplayName("[401] - Authentication failed")
     void testCreateAccountWithUnauthorizedAccess() throws Exception {
         // Assemble
         var request = new AccountRequest();
@@ -46,7 +46,7 @@ class AccountControllerTest extends UnitTest {
     void testCreateAccountSuccess() throws Exception {
         // Assemble
         var request = new AccountRequest();
-        request.setCpf("11111111111");
+        request.setCpf("11111111112");
         request.setNome("VR Benefícios");
 
         // Act
@@ -64,7 +64,7 @@ class AccountControllerTest extends UnitTest {
 
     @Test
     @WithMockUser
-    @DisplayName("[400] - Create accout wiht invalida payload")
+    @DisplayName("[400] - Create account with invalid payload")
     void testCreateAccountWithInvalidPayload() throws Exception {
         // Assemble
         var request = new AccountRequest();
@@ -81,10 +81,54 @@ class AccountControllerTest extends UnitTest {
                 .isEqualTo(new ErrorResponse("cpf is required"));
     }
 
+    @Test
+    @WithMockUser
+    @DisplayName("[200] - Check balance of account successfully")
+    void testCheckBalanceSuccess() throws Exception {
+        // Assemble
+        final var API_CHECK_BALANCE = API + "/00001";
+
+        // Act
+        var result = ApiExec.doGet(mockMvc, API_CHECK_BALANCE);
+
+        // Assert
+        Assertions.assertThat(result.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+        Assertions.assertThat(result.getResponse().getContentAsString()).isEqualTo("495.15");
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("[404] - Account not found to check balance")
+    void testCheckBalanceWithAccountNotFound() throws Exception {
+        // Assemble
+        final var API_CHECK_BALANCE = API + "/00002";
+
+        // Act
+        var result = ApiExec.doGet(mockMvc, API_CHECK_BALANCE);
+
+        // Assert
+        Assertions.assertThat(result.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+        Assertions.assertThat(result.getResponse().getContentAsString()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("[401] - Authentication failed")
+    void testCheckBalanceWithUnauthorized() throws Exception {
+        // Assemble
+        final var API_CHECK_BALANCE = API + "/00002";
+
+        // Act
+        var result = ApiExec.doGet(mockMvc, API_CHECK_BALANCE);
+
+        // Assert
+        Assertions.assertThat(result.getResponse().getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
+        Assertions.assertThat(result.getResponse().getContentAsString()).isEmpty();
+    }
+
     private AccountResponse createAccountResponse() {
         var response = new AccountResponse();
         response.setBanco(BANK);
-        response.setConta("00001");
+        response.setConta("00002");
         return response;
     }
 

@@ -1,10 +1,7 @@
 package br.com.fsrocha.vrcontadigital.domain.model;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -26,13 +23,14 @@ public class AccountEntity {
     @JdbcTypeCode(SqlTypes.VARCHAR)
     UUID id;
 
-    @OneToOne(mappedBy = "account", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "account", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     PersonEntity person;
 
-    @OneToOne(mappedBy = "account", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "account", fetch = FetchType.EAGER)
     BalanceEntity balance;
 
-    @OneToMany(mappedBy = "account", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "account", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+    @ToString.Exclude
     List<KeysPixEntity> keysPix;
 
     @Column(name = "bank")

@@ -2,8 +2,10 @@ package br.com.fsrocha.vrcontadigital.domain.service;
 
 import br.com.fsrocha.vrcontadigital.application.dto.request.AccountRequest;
 import br.com.fsrocha.vrcontadigital.application.exception.AccountExistsException;
+import br.com.fsrocha.vrcontadigital.application.exception.NotFoundException;
 import br.com.fsrocha.vrcontadigital.application.mapper.AccountMapper;
 import br.com.fsrocha.vrcontadigital.domain.model.AccountEntity;
+import br.com.fsrocha.vrcontadigital.domain.model.BalanceEntity;
 import br.com.fsrocha.vrcontadigital.domain.model.PersonEntity;
 import br.com.fsrocha.vrcontadigital.domain.repository.AccountRepository;
 import br.com.fsrocha.vrcontadigital.domain.service.impl.AccountServiceImpl;
@@ -17,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 class AccountServiceTest {
@@ -85,4 +88,41 @@ class AccountServiceTest {
         Mockito.verifyNoInteractions(nextAccountNumber, accountRepository);
     }
 
+    @Test
+    @DisplayName("Check balance of account")
+    void testCheckBalance() {
+        // Assemble
+        var account = new AccountEntity();
+        account.setBalance(createBalance());
+
+        Mockito.when(accountRepository.findByAccount("00001")).thenReturn(Optional.of(account));
+
+        // Act
+        var result = accountService.checkBalance("00001");
+
+        // Assert
+        Assertions.assertEquals(BigDecimal.valueOf(495.15), result);
+    }
+
+    @Test
+    @DisplayName("Check balance with account not found")
+    void testCheckBalanceWithAccountNotFound() {
+        // Assemble
+        var account = new AccountEntity();
+        account.setBalance(createBalance());
+
+        Mockito.when(accountRepository.findByAccount("00001")).thenReturn(Optional.empty());
+
+        // Act
+        Assertions.assertThrows(NotFoundException.class, () -> accountService.checkBalance("00001"));
+
+        // Verify
+        Mockito.verify(accountRepository).findByAccount("00001");
+    }
+
+    private BalanceEntity createBalance() {
+        var balance = new BalanceEntity();
+        balance.setBalance(BigDecimal.valueOf(495.15));
+        return balance;
+    }
 }

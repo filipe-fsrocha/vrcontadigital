@@ -34,6 +34,9 @@ public class KeysPixEntity {
     @Column(name = "created_at", nullable = false)
     LocalDateTime createdAt;
 
+    public KeysPixEntity() {
+    }
+
     public KeysPixEntity(String key) {
         this.key = key;
     }

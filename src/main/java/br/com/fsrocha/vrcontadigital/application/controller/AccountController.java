@@ -10,10 +10,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,6 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class AccountController {
 
     AccountService accountService;
+
+    @GetMapping("/{accountNumber}")
+    public ResponseEntity<BigDecimal> checkBalance(@PathVariable String accountNumber) {
+        return ResponseEntity.ok(accountService.checkBalance(accountNumber));
+    }
 
     @PostMapping
     public ResponseEntity<AccountResponse> createAccount(@Valid @RequestBody AccountRequest request) {
