@@ -120,6 +120,42 @@ class AccountServiceTest {
         Mockito.verify(accountRepository).findByAccount("00001");
     }
 
+    @Test
+    @DisplayName("Find account by pix and password")
+    void testFindAccountByPixAndPassword() {
+        // Assemble
+        var account = new AccountEntity();
+        account.setAccount("00001");
+
+        Mockito.when(accountRepository.findByKeyPixAndPassword("1111", "0000"))
+                .thenReturn(Optional.of(account));
+
+        // Acct
+        var result = accountService.findAccountByKeyPixAndPassword("1111", "0000");
+
+        // Assert
+        Assertions.assertEquals("00001", result.getAccount());
+
+        Mockito.verify(accountRepository).findByKeyPixAndPassword("1111", "0000");
+    }
+
+    @Test
+    @DisplayName("Find account by pix and password not found")
+    void testFindAccountByPixAndPasswordNotFound() {
+        // Assemble
+        var account = new AccountEntity();
+        account.setAccount("00001");
+
+        Mockito.when(accountRepository.findByKeyPixAndPassword("1111", "0000"))
+                .thenReturn(Optional.of(account));
+
+        // Acct
+        Assertions.assertThrows(NotFoundException.class, () -> accountService.findAccountByKeyPixAndPassword("1100", "0000"));
+
+        // Assert
+        Mockito.verify(accountRepository).findByKeyPixAndPassword("1100", "0000");
+    }
+
     private BalanceEntity createBalance() {
         var balance = new BalanceEntity();
         balance.setBalance(BigDecimal.valueOf(495.15));

@@ -26,13 +26,6 @@ public class AccountEntity {
     @OneToOne(mappedBy = "account", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     PersonEntity person;
 
-    @OneToOne(mappedBy = "account", fetch = FetchType.EAGER)
-    BalanceEntity balance;
-
-    @OneToMany(mappedBy = "account", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
-    @ToString.Exclude
-    List<KeysPixEntity> keysPix;
-
     @Column(name = "bank")
     String bank;
 
@@ -45,4 +38,13 @@ public class AccountEntity {
     @Column(name = "password")
     String password;
 
+    @OneToOne(mappedBy = "account", fetch = FetchType.EAGER)
+    BalanceEntity balance;
+
+    @OneToMany(mappedBy = "account", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+    @ToString.Exclude
+    List<KeysPixEntity> keysPix;
+
+    @OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
+    List<TransactionEntity> transactions;
 }

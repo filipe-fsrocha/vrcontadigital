@@ -10,4 +10,5 @@ public interface AccountService {
 
     BigDecimal checkBalance(String accountNumber);
 
+    AccountEntity findAccountByKeyPixAndPassword(String keyPix, String password);
 }

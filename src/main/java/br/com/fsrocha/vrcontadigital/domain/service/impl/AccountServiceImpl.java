@@ -46,6 +46,12 @@ public class AccountServiceImpl implements AccountService {
                 .orElse(BigDecimal.ZERO);
     }
 
+    @Override
+    public AccountEntity findAccountByKeyPixAndPassword(String keyPix, String password) {
+        return accountRepository.findByKeyPixAndPassword(keyPix, password)
+                .orElseThrow(NotFoundException::new);
+    }
+
     private void checkExistsAccount(String cpf) {
         personService.findByCpf(cpf)
                 .ifPresent(value -> {

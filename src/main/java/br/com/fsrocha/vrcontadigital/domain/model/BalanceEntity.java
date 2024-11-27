@@ -3,7 +3,6 @@ package br.com.fsrocha.vrcontadigital.domain.model;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -16,7 +15,6 @@ import java.util.UUID;
 @Data
 @Entity
 @Table(name = "balance")
-@NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BalanceEntity {
 
@@ -37,4 +35,12 @@ public class BalanceEntity {
     @Column(name = "last_updated")
     LocalDateTime lastUpdate;
 
+    public BalanceEntity() {
+    }
+
+    public BalanceEntity(AccountEntity account, BigDecimal balance, LocalDateTime lastUpdate) {
+        this.account = account;
+        this.balance = balance;
+        this.lastUpdate = lastUpdate;
+    }
 }
