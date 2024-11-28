@@ -4,7 +4,6 @@ import br.com.fsrocha.vrcontadigital.ApiExec;
 import br.com.fsrocha.vrcontadigital.UnitTest;
 import br.com.fsrocha.vrcontadigital.application.dto.request.TransactionRequest;
 import br.com.fsrocha.vrcontadigital.application.dto.response.DebitAccountResponse;
-import br.com.fsrocha.vrcontadigital.application.dto.response.ErrorResponse;
 import br.com.fsrocha.vrcontadigital.domain.enums.TransactionStatus;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
@@ -67,11 +66,8 @@ class TransactionControllerTest extends UnitTest {
         var result = ApiExec.doPost(mockMvc, URI_DEPOSIT, mapToJson(request));
 
         // Assert
-        var expected = mapToDto(result.getResponse().getContentAsString(), ErrorResponse.class);
-
         Assertions.assertThat(result.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
-        Assertions.assertThat(expected)
-                .isEqualTo(new ErrorResponse("senha is required"));
+        Assertions.assertThat(result.getResponse().getContentAsString()).isEmpty();
     }
 
     @Test
@@ -145,6 +141,22 @@ class TransactionControllerTest extends UnitTest {
         Assertions.assertThat(result.getResponse().getStatus()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY.value());
         Assertions.assertThat(result.getResponse().getContentAsString())
                 .isEqualTo(TransactionStatus.INSUFFICIENT_FUNDS.getTranslate());
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("[400] - Caso alguns dos dados para saque esteja faltando")
+    void testCashWithdrawalWithInvalidPayload() throws Exception {
+        // Assemble
+        final var URI_DEPOSIT = API + "11111111111" + "/saque";
+        var request = new TransactionRequest(BigDecimal.valueOf(600), "");
+
+        // Act
+        var result = ApiExec.doPost(mockMvc, URI_DEPOSIT, mapToJson(request));
+
+        // Assert
+        Assertions.assertThat(result.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        Assertions.assertThat(result.getResponse().getContentAsString()).isEmpty();
     }
 
     @Test
