@@ -1,6 +1,7 @@
 package br.com.fsrocha.vrcontadigital.application.exception;
 
 import br.com.fsrocha.vrcontadigital.application.dto.response.ErrorResponse;
+import br.com.fsrocha.vrcontadigital.domain.enums.TransactionStatus;
 import lombok.NonNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -24,7 +25,17 @@ public class ExceptionErrorHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = {NotFoundException.class})
     public ResponseEntity<Object> notFoundException() {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        return ResponseEntity.notFound().build();
+    }
+
+    @ExceptionHandler(value = {AccountNotFoundException.class})
+    public ResponseEntity<Object> accountNotFound() {
+        return ResponseEntity.unprocessableEntity().body(TransactionStatus.ACCOUNT_NOT_FOUND.getTranslate());
+    }
+
+    @ExceptionHandler(value = {InsufficientFundsException.class})
+    public ResponseEntity<Object> insufficientFunds() {
+        return ResponseEntity.unprocessableEntity().body(TransactionStatus.INSUFFICIENT_FUNDS.getTranslate());
     }
 
     @Override
