@@ -1,14 +1,14 @@
-package br.com.fsrocha.vrcontadigital.domain.service.impl;
+package br.com.fsrocha.vrcontadigital.domain.service.impl.credit;
 
 import br.com.fsrocha.vrcontadigital.domain.enums.OperationType;
-import br.com.fsrocha.vrcontadigital.domain.enums.TransactionStatus;
 import br.com.fsrocha.vrcontadigital.domain.model.AccountEntity;
 import br.com.fsrocha.vrcontadigital.domain.model.BalanceEntity;
-import br.com.fsrocha.vrcontadigital.domain.model.TransactionEntity;
+import br.com.fsrocha.vrcontadigital.domain.model.TransactionData;
+import br.com.fsrocha.vrcontadigital.domain.model.TransactionResult;
 import br.com.fsrocha.vrcontadigital.domain.repository.BalanceRepository;
-import br.com.fsrocha.vrcontadigital.domain.repository.TransactionsRepository;
 import br.com.fsrocha.vrcontadigital.domain.service.AccountService;
-import br.com.fsrocha.vrcontadigital.domain.service.TransactionsService;
+import br.com.fsrocha.vrcontadigital.domain.service.RegisterTransactionService;
+import br.com.fsrocha.vrcontadigital.domain.service.TransactionExecutorService;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -22,20 +22,28 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class TransactionsServiceImpl implements TransactionsService {
+public class CreditTransactionServiceImpl implements TransactionExecutorService {
 
     AccountService accountService;
     BalanceRepository balanceRepository;
-    TransactionsRepository transactionsRepository;
+    RegisterTransactionService registerTransactionService;
 
     @Override
     @Transactional
-    public void deposit(String keyPix, String password, BigDecimal amount) {
-        var account = accountService.findAccountByKeyPixAndPassword(keyPix, password);
-        var balanceEntity = createOrAddBalance(account, amount);
+    public TransactionResult execute(TransactionData transactionData) {
+        return applyCredit(transactionData);
+    }
 
-        createTransaction(account, amount);
-        balanceRepository.save(balanceEntity);
+    @Override
+    public OperationType operationType() {
+        return OperationType.CREDIT;
+    }
+
+    private TransactionResult applyCredit(TransactionData data) {
+        var account = accountService.findAccountByKeyPixAndPassword(data.getKeyPix(), data.getPassword());
+        var balanceEntity = createOrAddBalance(account, data.getAmount());
+        registerTransactionService.registerTransaction(account, data.getAmount(), OperationType.CREDIT);
+        return new TransactionResult(balanceRepository.save(balanceEntity).getBalance());
     }
 
     private BalanceEntity createOrAddBalance(AccountEntity account, BigDecimal amount) {
@@ -46,13 +54,5 @@ public class TransactionsServiceImpl implements TransactionsService {
                     return balanceEntity;
                 })
                 .orElse(new BalanceEntity(account, amount, LocalDateTime.now()));
-    }
-
-    private void createTransaction(AccountEntity account, BigDecimal amount) {
-        var transactionEntity = new TransactionEntity(account, amount);
-        transactionEntity.setOperationType(OperationType.CREDIT);
-        transactionEntity.setStatus(TransactionStatus.SUCCESS);
-        transactionEntity.setLocalDateTime(LocalDateTime.now());
-        transactionsRepository.save(transactionEntity);
     }
 }

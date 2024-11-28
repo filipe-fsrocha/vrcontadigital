@@ -38,7 +38,7 @@ public class AccountEntity {
     @Column(name = "password")
     String password;
 
-    @OneToOne(mappedBy = "account", fetch = FetchType.EAGER)
+    @OneToOne(mappedBy = "account", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     BalanceEntity balance;
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
